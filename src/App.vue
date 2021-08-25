@@ -1,25 +1,32 @@
 <template>
   <div id="app">
     <el-row>
+
       <el-col :span="2" class="desc">
         общие тр-ты:
-      </el-col>    
+      </el-col> 
+
       <el-col :span="1">
       {{tasksCount}} 
       </el-col>  
+
       <el-col :span="2" class="desc">
         разработчик:
       </el-col> 
-      <el-col :span="3">
+
+      <el-col :span="4">
         <el-input v-model="cMember.name"></el-input>
       </el-col>
 
-       <el-col :span="1" class="desc">
+       <el-col :span="2" class="desc">
         <el-button @click="onDel">Удалить</el-button>
       </el-col> 
-      <el-col :span="2">
 
-      </el-col>     
+      <el-col :span="1">
+        ...
+      </el-col>
+
+    
 
 
     </el-row>
@@ -31,7 +38,12 @@
     </el-row>
       
     <el-row>
-      <el-col :span="5" class="desc">
+
+            <el-col :span="3">
+        <el-button @click="storageSave">Записать</el-button>
+      </el-col> 
+
+      <el-col :span="2" class="desc">
         задача:
       </el-col>      
       <el-col :span="3">
@@ -105,6 +117,7 @@ export default {
   mounted(){
     element = document.getElementById("fire")
     context = element.getContext('2d')
+    this.storageLoad()
     this.pic(this.fire)
 
   },
@@ -142,6 +155,17 @@ export default {
     }
   },
   methods:{
+    storageSave(){
+      window.localStorage.setItem("dt", JSON.stringify( this.members))
+
+    },
+    storageLoad(){
+      let raw = window.localStorage.getItem("dt")
+      if(raw){
+        this.members = JSON.parse(raw)
+      }
+      //console.log(raw)
+    },
     pic(ret){
       if(context){
         context.clearRect(0, 0, 500, 500);
