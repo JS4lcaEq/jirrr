@@ -2,7 +2,7 @@
   <div id="app">
     <el-row>
       <el-col :span="2" class="desc">
-        общие трудозатраты:
+        общие тр-ты:
       </el-col>    
       <el-col :span="1">
       {{tasksCount}} 
@@ -58,7 +58,7 @@
     <div  class="task" 
           v-for="task in item.tasks" 
           :key="task.id" 
-          :class="{'active': task.isActive, 'w2': task.time==2, 'w3': task.time==3, 'w4': task.time==4, 'w5': task.time==5}" 
+          :class="{'active': task.isActive, 'w2': task.time==2, 'w3': task.time==3, 'w4': task.time==4, 'w5': task.time==5, 'w6': task.time==6, 'w7': task.time==7, 'w8': task.time==8, 'w9': task.time==9, 'w10': task.time==10}" 
           @click="onSelectTask(task)">
           <div>
             {{task.name}}
@@ -105,7 +105,7 @@ export default {
   mounted(){
     element = document.getElementById("fire")
     context = element.getContext('2d')
-
+    this.pic(this.fire)
 
   },
   computed:{
@@ -137,6 +137,12 @@ export default {
           start = index
         })
       })
+      this.pic(ret)
+      return ret
+    }
+  },
+  methods:{
+    pic(ret){
       if(context){
         context.clearRect(0, 0, 500, 500);
         context.beginPath()
@@ -164,11 +170,7 @@ export default {
         context.strokeStyle = 'rgba(0, 0, 0, 0.1)';
         context.stroke();
       }
-
-      return ret
-    }
-  },
-  methods:{
+    },
     onSave(){
       // let self = this;
       // this.dt.push({idname: self.inMember, tasks:[]})
@@ -252,7 +254,7 @@ height: 35px;
   margin: 0 3px;
   height: 100%;
 }
-.task.active{
+.task.active div{
   border-top: solid 2px red;
 }
 .task.w2{
@@ -266,6 +268,21 @@ height: 35px;
 }
 .task.w5{
   width: 500px;
+}
+.task.w6{
+  width: 600px;
+}
+.task.w7{
+  width: 700px;
+}
+.task.w8{
+  width: 800px;
+}
+.task.w9{
+  width: 900px;
+}
+.task.w10{
+  width: 1000px;
 }
 .nm{
   width: 200px;
