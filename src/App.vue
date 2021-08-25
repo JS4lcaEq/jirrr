@@ -14,17 +14,17 @@
         разработчик:
       </el-col> 
 
-      <el-col :span="4">
+      <el-col :span="3">
         <el-input v-model="cMember.name"></el-input>
       </el-col>
-
-       <el-col :span="2" class="desc">
+      <el-col :span="3">
+        <p>   </p>
+      </el-col>
+       <el-col :span="2" >
         <el-button @click="onDel">Удалить</el-button>
       </el-col> 
 
-      <el-col :span="1">
-        ...
-      </el-col>
+
 
     
 
@@ -49,12 +49,15 @@
       <el-col :span="3">
         <el-input v-model="cTask.name"></el-input>
       </el-col>
-      <el-col :span="2" class="desc">
+      <!-- <el-col :span="2" class="desc">
         затраты:
-      </el-col>       
+      </el-col>        -->
 
-      <el-col :span="1">
+      <el-col :span="2">
         <el-input v-model="cTask.time"></el-input>
+      </el-col>
+      <el-col :span="1">
+        <p>   </p>
       </el-col>
        <el-col :span="2">
         <el-button @click="onDelTask">Удалить</el-button>
@@ -81,7 +84,7 @@
 
 
 <div class="space"></div>
-  <el-button @click="onAdd">+</el-button>
+  <p><el-button @click="onAdd">+</el-button></p>
 <div class="space"></div>
 
     <canvas id="fire" width="500" height="500"></canvas>
@@ -177,7 +180,7 @@ export default {
             summ = summ + ret[key.toString()]
           }
           context.lineTo(key * this.kW, summ * this.kH)
-          console.log(key, "=", ret[key.toString()])
+          //console.log(key, "=", ret[key.toString()])
         } 
         context.strokeStyle = "#000";     
         context.stroke();
@@ -251,6 +254,9 @@ export default {
 </script>
 
 <style>
+.el-row{
+  line-height: 40px;
+}
 .el-row.line hr { 
   color: #eee;
 }
@@ -274,7 +280,7 @@ height: 35px;
 
 }
 .task div{
-  background-color: aquamarine;
+  background-color:rgba(0, 0, 255, 0.1);
   margin: 0 3px;
   height: 100%;
 }
