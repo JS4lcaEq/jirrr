@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <div class="row">
-      <div class="desc"><el-button @click="storageSave">Записать</el-button></div>
+      <div class="desc">
+        <el-button @click="storageSave">Записать</el-button>
+      </div>
       <div class="desc">общие тр-ты:</div>
 
       <div class="value">{{ tasksCount }}</div>
@@ -117,11 +119,16 @@
             w9: task.time == 9,
             w10: task.time == 10,
           }"
-          
         >
-          <div class="task-space" :class="{'active': isMoving}" @click="onMoved(task, item)">&nbsp;</div>
+          <div
+            class="task-space"
+            :class="{ active: isMoving }"
+            @click="onMoved(task, item)"
+          >
+            &nbsp;
+          </div>
           <div class="task-name" @click="onSelectTask(task)">
-            <strong>{{parseType(task.typeId)}}</strong> {{ task.name }}
+            <strong>{{ parseType(task.typeId) }}</strong> {{ task.name }}
           </div>
         </div>
       </div>
@@ -131,15 +138,16 @@
     </div>
 
     <div class="space"></div>
-  
 
-<div style="display: flex;">
-    <div><canvas id="fire" width="500" height="500"></canvas></div>
-    <div class="persent">
-      <p v-for="type in types" :key="type.value">{{type.label}} : {{typesCount[type.value]}} %</p>
-      <p>не указано: {{typesCount[0]}} %</p>
+    <div style="display: flex">
+      <div><canvas id="fire" width="500" height="500"></canvas></div>
+      <div class="persent">
+        <p v-for="type in types" :key="type.value">
+          {{ type.label }} : {{ typesCount[type.value] }} %
+        </p>
+        <p>не указано: {{ typesCount[0] }} %</p>
       </div>
-</div>
+    </div>
     <div class="debug">
       <p>{{ members }}</p>
       <p>{{ fire }}</p>
@@ -181,12 +189,14 @@ export default {
               name: "новая задача",
               time: "2",
               isActive: false,
+              typeId: 2
             },
             {
               id: 0.9343021127754118,
               name: "новая задача",
               time: "2",
               isActive: false,
+              typeId: 2
             },
             {
               id: 0.18407621000603458,
@@ -253,13 +263,13 @@ export default {
       tasks: [],
       cTask: {},
       pTask: {},
-      types:[
-        {label:"тех.долг", value: 1, sn: "Т"},
-        {label:"нов.фун.", value: 2, sn: "Н"},
-        {label:"арх.", value: 3, sn: "А"},
-        {label:"дефект", value: 4, sn: "Д"}
+      types: [
+        { label: "тех.долг", value: 1, sn: "Т" },
+        { label: "нов.фун.", value: 2, sn: "Н" },
+        { label: "арх.", value: 3, sn: "А" },
+        { label: "дефект", value: 4, sn: "Д" },
       ],
-      isMoving: false
+      isMoving: false,
     };
   },
   mounted() {
@@ -269,23 +279,23 @@ export default {
     this.pic(this.fire);
   },
   computed: {
-    typesCount(){
-      let ret = {0:0, 1:0, 2:0, 3:0, 4:0}
+    typesCount() {
+      let ret = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
       this.members.forEach((member) => {
         member.tasks.forEach((task) => {
-          let typeId = task.typeId
-          if(typeId){
-            ret[typeId] = (Number.parseFloat(ret[typeId]) + Number.parseInt(task.time) ) // / this.tasksCount
-          }else{
-            ret[0] = (Number.parseFloat(ret[0]) + Number.parseInt(task.time) )
+          let typeId = task.typeId;
+          if (typeId) {
+            ret[typeId] =
+              Number.parseFloat(ret[typeId]) + Number.parseInt(task.time); // / this.tasksCount
+          } else {
+            ret[0] = Number.parseFloat(ret[0]) + Number.parseInt(task.time);
           }
-        })
-      })
-      for(let i = 0 ; i < 5; i++){
-      
-        ret[i] = Math.round(ret[i] * 100 / this.tasksCount)
+        });
+      });
+      for (let i = 0; i < 5; i++) {
+        ret[i] = Math.round((ret[i] * 100) / this.tasksCount);
       }
-      return ret
+      return ret;
     },
     tasksCount() {
       let count = 0;
@@ -320,27 +330,37 @@ export default {
     },
   },
   methods: {
-    parseType(id){
-      if(id){
-        let finded = this.types.filter(x=>(x.value==id))
-        if(finded && finded.length > 0){
-          return finded[0].sn
+    changeTasks(srcTask, dstTask) {
+      let srcName = srcTask.name;
+      let dstName = dstTask.name;
+      let srcTypeId = srcTask.typeId;
+      let dstTypeId = dstTask.typeId;
+      srcTask.name = dstName;
+      srcTask.typeId = dstTypeId;
+      dstTask.name = srcName;
+      dstTask.typeId = srcTypeId;
+    },
+    parseType(id) {
+      if (id) {
+        let finded = this.types.filter((x) => x.value == id);
+        if (finded && finded.length > 0) {
+          return finded[0].sn;
         }
       }
-      return null
+      return null;
     },
-    onMoved(task, member){
-      if(!this.isMoving) return
-      
-      let deleteIndex = this.cMember.tasks.indexOf(this.cTask)
-      this.cMember.tasks.splice(deleteIndex, 1)
+    onMoved(task, member) {
+      if (!this.isMoving) return;
 
-      let pasteIndex = member.tasks.indexOf(task)
-      member.tasks.splice(pasteIndex, 0, this.cTask)
+      let deleteIndex = this.cMember.tasks.indexOf(this.cTask);
+      this.cMember.tasks.splice(deleteIndex, 1);
 
-      this.isMoving = false
+      let pasteIndex = member.tasks.indexOf(task);
+      member.tasks.splice(pasteIndex, 0, this.cTask);
+
+      this.isMoving = false;
     },
-    onMove(){
+    onMove() {
       this.isMoving = true;
     },
     storageSave() {
@@ -427,7 +447,7 @@ export default {
         name: "новая задача",
         time: 1,
         isActive: false,
-        typeId: 2
+        typeId: 2,
       };
       //self.tasks.push(task)
       self.cMember.tasks.push(task);
@@ -439,24 +459,28 @@ export default {
     },
 
     onSelectTask(task) {
-      this.cTask = task;
+      if (this.isMoving) {
+        this.changeTasks(this.cTask, task);
+      } else {
+        this.cTask = task;
+      }
       this.members.forEach((member) => {
         member.tasks.forEach((tsk) => {
           tsk.isActive = false;
         });
       });
       task.isActive = true;
-      this.isMoving = false
+      this.isMoving = false;
     },
   },
 };
 </script>
 
 <style>
-body{
+body {
   font-family: Arial, Helvetica, sans-serif;
 }
-.persent{
+.persent {
   padding-left: 50px;
 }
 .row {
@@ -475,7 +499,8 @@ body{
 .el-row.line hr {
   color: #eee;
 }
-.debug, hr {
+.debug,
+hr {
   color: #eee;
   border: 1px solid #eee;
 }
@@ -507,7 +532,7 @@ body{
   background-color: #eee;
   height: 100%;
 }
-.task-space.active{
+.task-space.active {
   background-color: rgb(200, 255, 0);
   cursor: pointer;
 }
