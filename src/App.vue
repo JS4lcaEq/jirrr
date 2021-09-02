@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <div class="row">
+      <div class="desc"><el-button @click="storageSave">Записать</el-button></div>
       <div class="desc">общие тр-ты:</div>
 
       <div class="value">{{ tasksCount }}</div>
@@ -10,12 +11,13 @@
       <div style="flex: 1 0"><el-input v-model="cMember.name"></el-input></div>
 
       <div class="desc"><el-button @click="onDel">Удалить</el-button></div>
+      <div class="desc"><el-button @click="onAdd">+</el-button></div>
     </div>
 
     <hr />
 
     <div class="row">
-      <div><el-button @click="storageSave">Записать</el-button></div>
+      <div></div>
 
       <div class="desc">задача:</div>
 
@@ -40,6 +42,7 @@
       </div>
 
       <div><el-button @click="onDelTask">Удалить</el-button></div>
+      <div><el-button @click="onMove">Переместить</el-button></div>
     </div>
     <hr />
     <div class="member">
@@ -114,10 +117,10 @@
             w9: task.time == 9,
             w10: task.time == 10,
           }"
-          @click="onSelectTask(task)"
+          
         >
-          <div class="task-space">&nbsp;</div>
-          <div class="task-name">
+          <div class="task-space" :class="{'active': isMoving}" @click="onMoved(task, item)">&nbsp;</div>
+          <div class="task-name" @click="onSelectTask(task)">
             {{ task.name }}
           </div>
         </div>
@@ -128,10 +131,15 @@
     </div>
 
     <div class="space"></div>
-    <p><el-button @click="onAdd">+</el-button></p>
-    <div class="space"></div>
+  
 
-    <canvas id="fire" width="500" height="500"></canvas>
+<div style="display: flex;">
+    <div><canvas id="fire" width="500" height="500"></canvas></div>
+    <div class="persent">
+      <p v-for="type in types" :key="type.value">{{type.label}} : {{typesCount[type.value]}}</p>
+      <p>не указано: {{typesCount[0]}}</p>
+      </div>
+</div>
     <div class="debug">
       <p>{{ members }}</p>
       <p>{{ fire }}</p>
@@ -163,9 +171,10 @@ export default {
           tasks: [
             {
               id: 0.0023599485286690536,
-              name: "новая задача",
+              name: "н.ф.",
               time: "2",
               isActive: false,
+              typeId: 2
             },
             {
               id: 0.37211958881958207,
@@ -245,11 +254,12 @@ export default {
       cTask: {},
       pTask: {},
       types:[
-        {label:"тех.долг.", value: 1},
-        {label:"нов.функ.", value: 2},
-        {label:"архитек", value: 3},
+        {label:"тех.долг", value: 1},
+        {label:"нов.фун.", value: 2},
+        {label:"арх.", value: 3},
         {label:"дефект", value: 4}
-      ]
+      ],
+      isMoving: false
     };
   },
   mounted() {
@@ -259,6 +269,24 @@ export default {
     this.pic(this.fire);
   },
   computed: {
+    typesCount(){
+      let ret = {0:0, 1:0, 2:0, 3:0, 4:0}
+      this.members.forEach((member) => {
+        member.tasks.forEach((task) => {
+          let typeId = task.typeId
+          if(typeId){
+            ret[typeId] = (Number.parseFloat(ret[typeId]) + Number.parseInt(task.time) ) // / this.tasksCount
+          }else{
+            ret[0] = (Number.parseFloat(ret[0]) + Number.parseInt(task.time) )
+          }
+        })
+      })
+      for(let i = 0 ; i < 5; i++){
+      
+        ret[i] = Math.round(ret[i] * 100 / this.tasksCount)
+      }
+      return ret
+    },
     tasksCount() {
       let count = 0;
       this.members.forEach((member) => {
@@ -292,6 +320,20 @@ export default {
     },
   },
   methods: {
+    onMoved(task, member){
+      if(!this.isMoving) return
+      
+      let deleteIndex = this.cMember.tasks.indexOf(this.cTask)
+      this.cMember.tasks.splice(deleteIndex, 1)
+
+      let pasteIndex = member.tasks.indexOf(task)
+      member.tasks.splice(pasteIndex, 0, this.cTask)
+
+      this.isMoving = false
+    },
+    onMove(){
+      this.isMoving = true;
+    },
     storageSave() {
       window.localStorage.setItem("dt", JSON.stringify(this.members));
     },
@@ -376,6 +418,7 @@ export default {
         name: "новая задача",
         time: 1,
         isActive: false,
+        typeId: 2
       };
       //self.tasks.push(task)
       self.cMember.tasks.push(task);
@@ -387,14 +430,6 @@ export default {
     },
 
     onSelectTask(task) {
-      this.pTask = this.cTask;
-      this.members.forEach((member) => {
-        member.tasks.forEach((tsk) => {
-          tsk.isPrev = false;
-        });
-      });
-      this.pTask.isPrev = true;
-
       this.cTask = task;
       this.members.forEach((member) => {
         member.tasks.forEach((tsk) => {
@@ -408,6 +443,9 @@ export default {
 </script>
 
 <style>
+.persent{
+  padding-left: 50px;
+}
 .row {
   display: flex;
 }
@@ -424,8 +462,9 @@ export default {
 .el-row.line hr {
   color: #eee;
 }
-.debug {
-  color: #ccc;
+.debug, .debug hr {
+  color: #eee;
+  border: 1px solid #eee;
 }
 .member {
   background-color: #eee;
@@ -453,6 +492,9 @@ export default {
   float: left;
   background-color: #eee;
   height: 100%;
+}
+.task-space.active{
+  background-color: rgb(200, 255, 0);
 }
 .task.active .task-name {
   background-color: rgba(0, 255, 0, 0.2);
