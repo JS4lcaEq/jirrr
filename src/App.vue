@@ -182,21 +182,21 @@ export default {
               name: "н.ф.",
               time: "2",
               isActive: false,
-              typeId: 2
+              typeId: 2,
             },
             {
               id: 0.37211958881958207,
               name: "новая задача",
               time: "2",
               isActive: false,
-              typeId: 2
+              typeId: 2,
             },
             {
               id: 0.9343021127754118,
               name: "новая задача",
               time: "2",
               isActive: false,
-              typeId: 2
+              typeId: 2,
             },
             {
               id: 0.18407621000603458,
@@ -340,6 +340,20 @@ export default {
       dstTask.name = srcName;
       dstTask.typeId = srcTypeId;
     },
+    checkMemberOverload(member) {
+      let overload = 0;
+      member.tasks.forEach((task) => {
+        overload = overload + Number.parseInt(task.time);
+      });
+      return overload - 10 > 0;
+    },
+    repareTime(member) {
+      member.tasks.forEach((task) => {
+        if (this.checkMemberOverload(member)) {
+          task.time = 1;
+        }
+      });
+    },
     parseType(id) {
       if (id) {
         let finded = this.types.filter((x) => x.value == id);
@@ -359,6 +373,16 @@ export default {
       member.tasks.splice(pasteIndex, 0, this.cTask);
 
       this.isMoving = false;
+
+      if (this.checkMemberOverload(member)) {
+        this.cTask.time = 1;
+      }
+
+      if (this.checkMemberOverload(member)) {
+        task.time = 1;
+      }
+
+      this.repareTime(member);
     },
     onMove() {
       this.isMoving = true;
