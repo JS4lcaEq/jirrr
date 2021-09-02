@@ -29,7 +29,7 @@
 
       <div class="desc">тип:</div>
 
-      <div style="width: 100px">
+      <div style="width: 150px">
         <el-select v-model="cTask.typeId" placeholder="Select">
           <el-option
             v-for="item in types"
@@ -121,7 +121,7 @@
         >
           <div class="task-space" :class="{'active': isMoving}" @click="onMoved(task, item)">&nbsp;</div>
           <div class="task-name" @click="onSelectTask(task)">
-            {{ task.name }}
+            <strong>{{parseType(task.typeId)}}</strong> {{ task.name }}
           </div>
         </div>
       </div>
@@ -136,8 +136,8 @@
 <div style="display: flex;">
     <div><canvas id="fire" width="500" height="500"></canvas></div>
     <div class="persent">
-      <p v-for="type in types" :key="type.value">{{type.label}} : {{typesCount[type.value]}}</p>
-      <p>не указано: {{typesCount[0]}}</p>
+      <p v-for="type in types" :key="type.value">{{type.label}} : {{typesCount[type.value]}} %</p>
+      <p>не указано: {{typesCount[0]}} %</p>
       </div>
 </div>
     <div class="debug">
@@ -254,10 +254,10 @@ export default {
       cTask: {},
       pTask: {},
       types:[
-        {label:"тех.долг", value: 1},
-        {label:"нов.фун.", value: 2},
-        {label:"арх.", value: 3},
-        {label:"дефект", value: 4}
+        {label:"тех.долг", value: 1, sn: "Т"},
+        {label:"нов.фун.", value: 2, sn: "Н"},
+        {label:"арх.", value: 3, sn: "А"},
+        {label:"дефект", value: 4, sn: "Д"}
       ],
       isMoving: false
     };
@@ -320,6 +320,15 @@ export default {
     },
   },
   methods: {
+    parseType(id){
+      if(id){
+        let finded = this.types.filter(x=>(x.value==id))
+        if(finded && finded.length > 0){
+          return finded[0].sn
+        }
+      }
+      return null
+    },
     onMoved(task, member){
       if(!this.isMoving) return
       
@@ -437,12 +446,16 @@ export default {
         });
       });
       task.isActive = true;
+      this.isMoving = false
     },
   },
 };
 </script>
 
 <style>
+body{
+  font-family: Arial, Helvetica, sans-serif;
+}
 .persent{
   padding-left: 50px;
 }
@@ -462,7 +475,7 @@ export default {
 .el-row.line hr {
   color: #eee;
 }
-.debug, .debug hr {
+.debug, hr {
   color: #eee;
   border: 1px solid #eee;
 }
@@ -486,6 +499,7 @@ export default {
   height: 100%;
   overflow: hidden;
   text-align: center;
+  cursor: pointer;
 }
 .task-space {
   width: 10px;
@@ -495,6 +509,7 @@ export default {
 }
 .task-space.active{
   background-color: rgb(200, 255, 0);
+  cursor: pointer;
 }
 .task.active .task-name {
   background-color: rgba(0, 255, 0, 0.2);
