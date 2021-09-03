@@ -12,7 +12,11 @@
 
       <div style="flex: 1 0"><el-input v-model="cMember.name"></el-input></div>
 
-      <div class="desc"><el-button @click="onDel">Удалить</el-button></div>
+      <div class="desc">
+        <el-popconfirm title="Удалить?" @confirm="onDel">
+          <el-button slot="reference">Удалить</el-button>
+        </el-popconfirm>
+      </div>
       <div class="desc"><el-button @click="onAdd">+</el-button></div>
     </div>
 
@@ -43,7 +47,11 @@
         </el-select>
       </div>
 
-      <div><el-button @click="onDelTask">Удалить</el-button></div>
+      <div>
+        <el-popconfirm title="Удалить?" @confirm="onDelTask">
+          <el-button slot="reference">Удалить</el-button>
+        </el-popconfirm>
+      </div>
       <div><el-button @click="onMove">Переместить</el-button></div>
     </div>
     <hr />
@@ -127,7 +135,11 @@
           >
             &nbsp;
           </div>
-          <div class="task-name" @click="onSelectTask(task)">
+          <div
+            class="task-name"
+            @click="onSelectTask(task)"
+            @mouseover="notify('Задача', 'Можно сделать текущей - клик', 'th')"
+          >
             <strong>{{ parseType(task.typeId) }}</strong> {{ task.name }}
           </div>
         </div>
@@ -270,6 +282,7 @@ export default {
         { label: "дефект", value: 4, sn: "Д" },
       ],
       isMoving: false,
+      notifyTimer: {},
     };
   },
   mounted() {
@@ -330,6 +343,17 @@ export default {
     },
   },
   methods: {
+    notify(title, message, id) {
+      if (this.notifyTimer[id] && Date.now() - this.notifyTimer[id] < 5000)
+        return;
+
+      this.notifyTimer[id] = Date.now();
+      this.$notify({
+        title: title,
+        message: message,
+        position: "bottom-right",
+      });
+    },
     changeTasks(srcTask, dstTask) {
       let srcName = srcTask.name;
       let dstName = dstTask.name;
@@ -386,6 +410,11 @@ export default {
     },
     onMove() {
       this.isMoving = true;
+        this.notify(
+          "Перемещение задачи",
+          "Зелеными маркерами подсвечены возможные места перемещения",
+          "tm"
+        );
     },
     storageSave() {
       window.localStorage.setItem("dt", JSON.stringify(this.members));
@@ -487,6 +516,11 @@ export default {
         this.changeTasks(this.cTask, task);
       } else {
         this.cTask = task;
+        this.notify(
+          "Выбор задачи",
+          "Выбранную задачу можно отредактировать, обменять с другой задачей или переместить",
+          "ta"
+        );
       }
       this.members.forEach((member) => {
         member.tasks.forEach((tsk) => {
@@ -525,8 +559,8 @@ body {
 }
 .debug,
 hr {
-  color: #eee;
-  border: 1px solid #eee;
+  color: #eeeeee;
+  border: 1px solid #eeeeee;
 }
 .member {
   background-color: #eee;
