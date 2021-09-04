@@ -184,92 +184,7 @@ export default {
   },
   data() {
     return {
-      members: [
-        {
-          id: 0.11482149135454323,
-          name: "Максим",
-          tasks: [
-            {
-              id: 0.0023599485286690536,
-              name: "н.ф.",
-              time: "2",
-              isActive: false,
-              typeId: 2,
-            },
-            {
-              id: 0.37211958881958207,
-              name: "новая задача",
-              time: "2",
-              isActive: false,
-              typeId: 2,
-            },
-            {
-              id: 0.9343021127754118,
-              name: "новая задача",
-              time: "2",
-              isActive: false,
-              typeId: 2,
-            },
-            {
-              id: 0.18407621000603458,
-              name: "новая задача",
-              time: "2",
-              isActive: false,
-            },
-            {
-              id: 0.43270851236231545,
-              name: "новая задача",
-              time: "2",
-              isActive: false,
-            },
-          ],
-          isActive: false,
-        },
-        {
-          id: 0.29428513232894016,
-          name: "Катя",
-          tasks: [
-            {
-              id: 0.9271747778856098,
-              name: "новая задача",
-              time: "5",
-              isActive: true,
-            },
-            {
-              id: 0.2861063346717799,
-              name: "новая задача",
-              time: "5",
-              isActive: false,
-            },
-          ],
-          isActive: true,
-        },
-        {
-          id: 0.22876539886181424,
-          name: "Андрей",
-          tasks: [
-            {
-              id: 0.0065651665361503575,
-              name: "325 пейджер",
-              time: "3",
-              isActive: false,
-            },
-            {
-              id: 0.4716512229226457,
-              name: "283 флекс",
-              time: "5",
-              isActive: false,
-            },
-            {
-              id: 0.07985047626073227,
-              name: "326 признак архив",
-              time: "2",
-              isActive: false,
-            },
-          ],
-          isActive: false,
-        },
-      ],
+      members: [ { "id": 0.11482149135454323, "name": "Максим", "tasks": [ { "id": 0.0023599485286690536, "name": "м1", "time": "5", "isActive": true, "typeId": 2, "startDay": 0, "fireDay": 5, "fs": 0, "fe": 5 }, { "id": 0.37211958881958207, "name": "м2", "time": "5", "isActive": false, "typeId": 4, "startDay": 5, "fireDay": 10, "fs": 0, "fe": 5 } ], "isActive": true }, { "id": 0.29428513232894016, "name": "Катя", "tasks": [ { "id": 0.9271747778856098, "name": "к1", "time": "5", "isActive": false, "startDay": 0, "fireDay": 5, "fs": 5, "fe": 10, "typeId": 1 }, { "id": 0.2861063346717799, "name": "к2", "time": "5", "isActive": false, "startDay": 5, "fireDay": 10, "fs": 5, "fe": 10, "typeId": 3 } ], "isActive": false } ],
       inMember: "inMember",
       cMember: { id: 1, name: "", tasks: [] },
       tasks: [],
@@ -474,7 +389,7 @@ export default {
         }
         context.strokeStyle = "rgba(0, 0, 0, 0.1)";
         context.stroke();
-        console.log("vs",this.cTask.vs, "vf", this.cTask.vf, "gs", this.cTask.gs, "gf", this.cTask.gf)
+
         context.fillStyle = "rgba(0,255,0,0.1)";
         context.fillRect(this.cTask.startDay * 50, 1, this.cTask.time * 50, 500)
         context.fillRect(0, (activeSumm - ret[this.cTask.fireDay] + this.cTask.fs) * this.kH, 500, this.cTask.time * this.kH)
