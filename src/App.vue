@@ -470,6 +470,9 @@ export default {
         typeId: 2,
       };
       self.cMember.tasks.push(task);
+      if(self.checkMemberOverload(self.cMember)){
+        self.repareTime(self.cMember)
+      }
     },
     clearMembersIsActive() {
       this.members.forEach((member) => {
