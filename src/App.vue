@@ -3,6 +3,7 @@
     <div class="row">
       <div class="desc">
         <el-button @click="storageSave">Записать</el-button>
+        <el-button @click="storageClear">Стереть</el-button>
       </div>
       <div class="desc">общие тр-ты:</div>
 
@@ -201,10 +202,23 @@ export default {
     };
   },
   mounted() {
+    const self = this
     element = document.getElementById("fire");
     context = element.getContext("2d");
     this.storageLoad();
-    this.pic(this.fire);
+    let cTask = null
+    this.members.forEach(member => {
+      member.tasks.forEach(task => {
+        if(task.isActive){
+          cTask = task
+          self.onSelectTask(cTask)
+        }
+      })
+    })
+    setTimeout(function(){
+      self.pic(self.fire);
+    }, 200)
+    
   },
   computed: {
     typesCount() {
@@ -343,13 +357,26 @@ export default {
           "tm"
         );
     },
+    storageClear(){
+      window.localStorage.removeItem('dt')
+      window.location.reload()
+
+    },
     storageSave() {
       window.localStorage.setItem("dt", JSON.stringify(this.members));
     },
     storageLoad() {
+      const SELF = this
       let raw = window.localStorage.getItem("dt");
       if (raw) {
         this.members = JSON.parse(raw);
+      }else{
+        setTimeout(() => {
+          SELF.notify("нет данных", "загружены демонстрационные данные", "dt")
+          SELF.storageSave()
+          SELF.storageLoad()
+        }, 500);
+        
       }
       //console.log(raw)
     },
@@ -442,7 +469,6 @@ export default {
         isActive: false,
         typeId: 2,
       };
-      //self.tasks.push(task)
       self.cMember.tasks.push(task);
     },
     clearMembersIsActive() {
@@ -469,6 +495,9 @@ export default {
       });
       task.isActive = true;
       this.isMoving = false;
+      this.setTaskDays()
+      let show = this.fire
+      show
     },
   },
 };
