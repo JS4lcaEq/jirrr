@@ -155,7 +155,7 @@
       <div><canvas id="fire" width="500" height="500"></canvas></div>
       <div class="persent">
         <p v-for="type in types" :key="type.value">
-          {{ type.label }} : {{ typesCount[type.value] }} %
+          <strong>{{type.sn}}</strong> {{ type.label }} : {{ typesCount[type.value] }} %
         </p>
         <p>не указано: {{ typesCount[0] }} %</p>
       </div>
@@ -327,15 +327,16 @@ export default {
     },
     fire() {
       let ret = {};
+      this.setTaskDays()
       this.members.forEach((member) => {
-        let start = 0;
         member.tasks.forEach((task) => {
-          let index = Number.parseInt(start) + Number.parseInt(task.time);
+          let index = task.fireDay
           if (ret[index] == undefined) {
             ret[index] = 0;
           }
+          task.fs = ret[index]
           ret[index] = ret[index] + Number.parseInt(task.time);
-          start = index;
+          task.fe = ret[index]
         });
       });
       this.pic(ret);
@@ -343,6 +344,17 @@ export default {
     },
   },
   methods: {
+    setTaskDays(){
+      this.members.forEach(member => {
+        let start = 0
+        member.tasks.forEach(task => {
+          task.startDay = start
+          task.fireDay = start + Number.parseInt(task.time)
+          start = task.fireDay
+        })
+      })
+    },
+    
     notify(title, message, id) {
       if (this.notifyTimer[id] && Date.now() - this.notifyTimer[id] < 5000)
         return;
@@ -428,13 +440,18 @@ export default {
     },
     pic(ret) {
       if (context) {
+        context.font = "12px serif";
         context.clearRect(0, 0, 500, 500);
         context.beginPath();
         context.moveTo(1, 1);
         let summ = 0;
+        let activeSumm = 0;
         for (var key = 0; key < 11; key++) {
           if (ret[key.toString()]) {
             summ = summ + ret[key.toString()];
+            if(this.cTask.fireDay == key){
+              activeSumm = summ
+            }
           }
           context.lineTo(key * this.kW, summ * this.kH);
           //console.log(key, "=", ret[key.toString()])
@@ -446,13 +463,21 @@ export default {
         for (let i = 0; i < 10; i++) {
           context.moveTo(i * 50, 1);
           context.lineTo(i * 50, 500);
+          context.fillStyle = "rgba(0,0,0,0.9)";
+          context.fillText(i+1, (i+1)*50 - 12, 10);
         }
+        let k = 500/this.tasksCount
         for (let i = 0; i < this.tasksCount; i++) {
           context.moveTo(1, i * this.kH);
           context.lineTo(500, i * this.kH);
+          context.fillText(i+1 , 5 , (i + 1)*k );
         }
         context.strokeStyle = "rgba(0, 0, 0, 0.1)";
         context.stroke();
+        console.log("vs",this.cTask.vs, "vf", this.cTask.vf, "gs", this.cTask.gs, "gf", this.cTask.gf)
+        context.fillStyle = "rgba(0,255,0,0.1)";
+        context.fillRect(this.cTask.startDay * 50, 1, this.cTask.time * 50, 500)
+        context.fillRect(0, (activeSumm - ret[this.cTask.fireDay] + this.cTask.fs) * this.kH, 500, this.cTask.time * this.kH)
       }
     },
     onSave() {
