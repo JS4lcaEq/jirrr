@@ -25,7 +25,7 @@
 
     <div class="row">
       <div class="desc">
-        <el-link icon="el-icon-edit" :href="'https://task.corp.dev.vtb/projects/INFSERV/issues/INFSERV-'+cTask.jira" target="_blank">Edit</el-link>
+        <el-link icon="el-icon-s-promotion" :href="'https://task.corp.dev.vtb/projects/INFSERV/issues/INFSERV-'+cTask.jira" target="_blank"></el-link>
         JIRA:
         </div>
       <div style="width: 60px"><el-input v-model="cTask.jira"></el-input></div>
@@ -145,7 +145,7 @@
             @click="onSelectTask(task)"
             @mouseover="notify('Задача', 'Можно сделать текущей - клик', 'th')"
           >
-            <strong>{{ parseType(task.typeId) }}</strong> {{ task.name }}
+            <strong>{{ parseType(task.typeId) }}</strong> {{task.jira}} {{ task.name }}
           </div>
         </div>
       </div>
@@ -472,6 +472,7 @@ export default {
         time: 1,
         isActive: false,
         typeId: 2,
+        jira: null
       };
       self.cMember.tasks.push(task);
       if(self.checkMemberOverload(self.cMember)){
