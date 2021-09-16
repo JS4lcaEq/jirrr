@@ -24,7 +24,11 @@
     <hr />
 
     <div class="row">
-      <div></div>
+      <div class="desc">
+        <el-link icon="el-icon-edit" :href="'https://task.corp.dev.vtb/projects/INFSERV/issues/INFSERV-'+cTask.jira" target="_blank">Edit</el-link>
+        JIRA:
+        </div>
+      <div style="width: 60px"><el-input v-model="cTask.jira"></el-input></div>
 
       <div class="desc">задача:</div>
 
