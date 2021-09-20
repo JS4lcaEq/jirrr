@@ -2,8 +2,9 @@
   <div id="app">
     <div class="row">
       <div class="desc">
-        <el-button @click="storageSave">Записать</el-button>
-        <el-button @click="storageClear">Стереть</el-button>
+        <el-button @click="storageSave" title="записать текущее состояние в память браузера">Записать</el-button>
+        <el-button @click="storageClear" title="очистить память браузера">Стереть</el-button>
+        <el-button @click="dataImport" title="импортировать данные из текстового ввода">Импортировать</el-button>
       </div>
       <div class="desc">общие тр-ты:</div>
 
@@ -25,8 +26,16 @@
 
     <div class="row">
       <div class="desc" v-if="cTask.jira">
-        <el-button icon="el-icon-download" @click="onLoadFromJira" title="получить из JIRA"></el-button>
-        <el-button icon="el-icon-upload2" @click="onUpLoadToJira" title="отправить в JIRA"></el-button>
+        <el-button
+          icon="el-icon-download"
+          @click="onLoadFromJira"
+          title="получить из JIRA"
+        ></el-button>
+        <el-button
+          icon="el-icon-upload2"
+          @click="onUpLoadToJira"
+          title="отправить в JIRA"
+        ></el-button>
         &nbsp;
         <el-link
           title="открыть в JIRA"
@@ -37,11 +46,11 @@
           "
           target="_blank"
         ></el-link>
-         &nbsp;
+        &nbsp;
       </div>
       <div class="desc">JIRA:</div>
 
-      <div style="width: 60px"><el-input v-model="cTask.jira"></el-input></div>
+      <div style="width: 60px"><el-input v-model="cTask.jira" title="номер задачи в JIRA (число)"></el-input></div>
 
       <div class="desc">задача:</div>
 
@@ -159,11 +168,7 @@
           >
             &nbsp;
           </div>
-          <div
-            class="task-name"
-            @click="onSelectTask(task)"
-            
-          >
+          <div class="task-name" @click="onSelectTask(task)">
             <strong>{{ parseType(task.typeId) }}</strong> {{ task.jira }}
             {{ task.name }}
           </div>
@@ -194,6 +199,26 @@
       <hr />
       <p>{{ cTask }}</p>
     </div>
+
+    <el-dialog
+      title="Импорт данных"
+      :visible.sync="dialogVisible"
+      width="90%"
+      :before-close="handleClose"
+    >
+      <el-input
+        type="textarea"
+        :rows="20"
+        placeholder="Please input"
+        v-model="importData"
+      >
+      </el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">Отмена</el-button>
+        <el-button type="primary" @click="doImport">Импортировать</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -277,12 +302,19 @@ export default {
       pTask: {},
       types: [
         { label: "тех.долг", value: 1, sn: "Т", text: "Технический долг" },
-        { label: "нов.фун.", value: 2, sn: "Н", text: "Новая функциональность"},
+        {
+          label: "нов.фун.",
+          value: 2,
+          sn: "Н",
+          text: "Новая функциональность",
+        },
         { label: "арх.", value: 3, sn: "А", text: "Архитектурная задача" },
         { label: "дефект", value: 4, sn: "Д", text: "Дефект" },
       ],
       isMoving: false,
       notifyTimer: {},
+      dialogVisible: false,
+      importData: null
     };
   },
   mounted() {
@@ -356,34 +388,54 @@ export default {
     },
   },
   methods: {
+    handleClose(){
+
+    },
+    doImport(){
+      const self = this
+      self.members = JSON.parse(self.importData)
+      this.dialogVisible = false
+    },
+    dataImport() {
+      const self = this
+      self.importData = JSON.stringify(self.members)
+      this.dialogVisible = true;
+    },
     onUpLoadToJira() {},
     onLoadFromJira() {
       const self = this;
       fetch("/api/latest/issue/INFSERV-" + self.cTask.jira, {
-        credentials: "include"
+        credentials: "include",
       })
         .then((response) => {
           return response.json();
         })
         .then((data) => {
-          self.cTask.name = data.fields.summary
-          if(data.fields.description){
-            self.cTask.desc = data.fields.description
+          self.cTask.name = data.fields.summary;
+          if (data.fields.description) {
+            self.cTask.desc = data.fields.description;
           }
-          self.cTask.time = data.fields.timetracking.originalEstimate.replace(/\D/g, "")
-          if(data.fields.customfield_11600){
-            let type = self.types.find((item)=>{return item.text==data.fields.customfield_11600.value}) 
-            if(type && type != undefined){
-              self.cTask.typeId = type.value
+          self.cTask.time = data.fields.timetracking.originalEstimate.replace(
+            /\D/g,
+            ""
+          );
+          if (data.fields.customfield_11600) {
+            let type = self.types.find((item) => {
+              return item.text == data.fields.customfield_11600.value;
+            });
+            if (type && type != undefined) {
+              self.cTask.typeId = type.value;
               //self.repareTime(self.cMember);
-            }            
+            }
           }
-          if(data.fields.issuetype && data.fields.issuetype.name){
-            let type = self.types.find((item)=>{return item.text==data.fields.issuetype.name}) 
-            if(type && type != undefined){
-              self.cTask.typeId = type.value
+          if (data.fields.issuetype && data.fields.issuetype.name) {
+            let type = self.types.find((item) => {
+              return item.text == data.fields.issuetype.name;
+            });
+            if (type && type != undefined) {
+              self.cTask.typeId = type.value;
               //self.repareTime(self.cMember);
-            }  
+            }
           }
           console.log(data);
         })
