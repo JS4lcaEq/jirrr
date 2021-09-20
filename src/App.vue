@@ -24,10 +24,23 @@
     <hr />
 
     <div class="row">
-      <div class="desc">
-        <el-link icon="el-icon-s-promotion" :href="'https://task.corp.dev.vtb/projects/INFSERV/issues/INFSERV-'+cTask.jira" target="_blank"></el-link>
-        JIRA:
-        </div>
+      <div class="desc" v-if="cTask.jira">
+        <el-button icon="el-icon-download" @click="onLoadFromJira" title="получить из JIRA"></el-button>
+        <el-button icon="el-icon-upload2" @click="onUpLoadToJira" title="отправить в JIRA"></el-button>
+        &nbsp;
+        <el-link
+          title="открыть в JIRA"
+          icon="el-icon-s-promotion"
+          :href="
+            'https://task.corp.dev.vtb/projects/INFSERV/issues/INFSERV-' +
+            cTask.jira
+          "
+          target="_blank"
+        ></el-link>
+         &nbsp;
+      </div>
+      <div class="desc">JIRA:</div>
+
       <div style="width: 60px"><el-input v-model="cTask.jira"></el-input></div>
 
       <div class="desc">задача:</div>
@@ -58,6 +71,11 @@
         </el-popconfirm>
       </div>
       <div><el-button @click="onMove">Переместить</el-button></div>
+    </div>
+    <hr />
+    <div class="row">
+      <div class="desc">описание:</div>
+      <div style="flex: 1 0"><el-input v-model="cTask.desc"></el-input></div>
     </div>
     <hr />
     <div class="member">
@@ -137,15 +155,17 @@
             class="task-space"
             :class="{ active: isMoving }"
             @click="onMoved(task, item)"
+            title="сюда можно переместить задачу"
           >
             &nbsp;
           </div>
           <div
             class="task-name"
             @click="onSelectTask(task)"
-            @mouseover="notify('Задача', 'Можно сделать текущей - клик', 'th')"
+            
           >
-            <strong>{{ parseType(task.typeId) }}</strong> {{task.jira}} {{ task.name }}
+            <strong>{{ parseType(task.typeId) }}</strong> {{ task.jira }}
+            {{ task.name }}
           </div>
         </div>
       </div>
@@ -160,7 +180,8 @@
       <div><canvas id="fire" width="500" height="500"></canvas></div>
       <div class="persent">
         <p v-for="type in types" :key="type.value">
-          <strong>{{type.sn}}</strong> {{ type.label }} : {{ typesCount[type.value] }} %
+          <strong>{{ type.sn }}</strong> {{ type.label }} :
+          {{ typesCount[type.value] }} %
         </p>
         <p>не указано: {{ typesCount[0] }} %</p>
       </div>
@@ -189,40 +210,98 @@ export default {
   },
   data() {
     return {
-      members: [ { "id": 0.11482149135454323, "name": "Максим", "tasks": [ { "id": 0.0023599485286690536, "name": "м1", "time": "5", "isActive": true, "typeId": 2, "startDay": 0, "fireDay": 5, "fs": 0, "fe": 5 }, { "id": 0.37211958881958207, "name": "м2", "time": "5", "isActive": false, "typeId": 4, "startDay": 5, "fireDay": 10, "fs": 0, "fe": 5 } ], "isActive": true }, { "id": 0.29428513232894016, "name": "Катя", "tasks": [ { "id": 0.9271747778856098, "name": "к1", "time": "5", "isActive": false, "startDay": 0, "fireDay": 5, "fs": 5, "fe": 10, "typeId": 1 }, { "id": 0.2861063346717799, "name": "к2", "time": "5", "isActive": false, "startDay": 5, "fireDay": 10, "fs": 5, "fe": 10, "typeId": 3 } ], "isActive": false } ],
+      members: [
+        {
+          id: 0.11482149135454323,
+          name: "Максим",
+          tasks: [
+            {
+              id: 0.0023599485286690536,
+              name: "м1",
+              time: "5",
+              isActive: true,
+              typeId: 2,
+              startDay: 0,
+              fireDay: 5,
+              fs: 0,
+              fe: 5,
+            },
+            {
+              id: 0.37211958881958207,
+              name: "м2",
+              time: "5",
+              isActive: false,
+              typeId: 4,
+              startDay: 5,
+              fireDay: 10,
+              fs: 0,
+              fe: 5,
+            },
+          ],
+          isActive: true,
+        },
+        {
+          id: 0.29428513232894016,
+          name: "Катя",
+          tasks: [
+            {
+              id: 0.9271747778856098,
+              name: "к1",
+              time: "5",
+              isActive: false,
+              startDay: 0,
+              fireDay: 5,
+              fs: 5,
+              fe: 10,
+              typeId: 1,
+            },
+            {
+              id: 0.2861063346717799,
+              name: "к2",
+              time: "5",
+              isActive: false,
+              startDay: 5,
+              fireDay: 10,
+              fs: 5,
+              fe: 10,
+              typeId: 3,
+            },
+          ],
+          isActive: false,
+        },
+      ],
       inMember: "inMember",
       cMember: { id: 1, name: "", tasks: [] },
       tasks: [],
       cTask: {},
       pTask: {},
       types: [
-        { label: "тех.долг", value: 1, sn: "Т" },
-        { label: "нов.фун.", value: 2, sn: "Н" },
-        { label: "арх.", value: 3, sn: "А" },
-        { label: "дефект", value: 4, sn: "Д" },
+        { label: "тех.долг", value: 1, sn: "Т", text: "Технический долг" },
+        { label: "нов.фун.", value: 2, sn: "Н", text: "Новая функциональность"},
+        { label: "арх.", value: 3, sn: "А", text: "Архитектурная задача" },
+        { label: "дефект", value: 4, sn: "Д", text: "Дефект" },
       ],
       isMoving: false,
       notifyTimer: {},
     };
   },
   mounted() {
-    const self = this
+    const self = this;
     element = document.getElementById("fire");
     context = element.getContext("2d");
     this.storageLoad();
-    let cTask = null
-    this.members.forEach(member => {
-      member.tasks.forEach(task => {
-        if(task.isActive){
-          cTask = task
-          self.onSelectTask(cTask)
+    let cTask = null;
+    this.members.forEach((member) => {
+      member.tasks.forEach((task) => {
+        if (task.isActive) {
+          cTask = task;
+          self.onSelectTask(cTask);
         }
-      })
-    })
-    setTimeout(function(){
+      });
+    });
+    setTimeout(function () {
       self.pic(self.fire);
-    }, 200)
-    
+    }, 200);
   },
   computed: {
     typesCount() {
@@ -260,16 +339,16 @@ export default {
     },
     fire() {
       let ret = {};
-      this.setTaskDays()
+      this.setTaskDays();
       this.members.forEach((member) => {
         member.tasks.forEach((task) => {
-          let index = task.fireDay
+          let index = task.fireDay;
           if (ret[index] == undefined) {
             ret[index] = 0;
           }
-          task.fs = ret[index]
+          task.fs = ret[index];
           ret[index] = ret[index] + Number.parseInt(task.time);
-          task.fe = ret[index]
+          task.fe = ret[index];
         });
       });
       this.pic(ret);
@@ -277,17 +356,53 @@ export default {
     },
   },
   methods: {
-    setTaskDays(){
-      this.members.forEach(member => {
-        let start = 0
-        member.tasks.forEach(task => {
-          task.startDay = start
-          task.fireDay = start + Number.parseInt(task.time)
-          start = task.fireDay
-        })
+    onUpLoadToJira() {},
+    onLoadFromJira() {
+      const self = this;
+      fetch("/api/latest/issue/INFSERV-" + self.cTask.jira, {
+        credentials: "include"
       })
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          self.cTask.name = data.fields.summary
+          if(data.fields.description){
+            self.cTask.desc = data.fields.description
+          }
+          self.cTask.time = data.fields.timetracking.originalEstimate.replace(/\D/g, "")
+          if(data.fields.customfield_11600){
+            let type = self.types.find((item)=>{return item.text==data.fields.customfield_11600.value}) 
+            if(type && type != undefined){
+              self.cTask.typeId = type.value
+              //self.repareTime(self.cMember);
+            }            
+          }
+          if(data.fields.issuetype && data.fields.issuetype.name){
+            let type = self.types.find((item)=>{return item.text==data.fields.issuetype.name}) 
+            if(type && type != undefined){
+              self.cTask.typeId = type.value
+              //self.repareTime(self.cMember);
+            }  
+          }
+          console.log(data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      console.log("onLoadFromJira ", self.cTask.jira);
     },
-    
+    setTaskDays() {
+      this.members.forEach((member) => {
+        let start = 0;
+        member.tasks.forEach((task) => {
+          task.startDay = start;
+          task.fireDay = start + Number.parseInt(task.time);
+          start = task.fireDay;
+        });
+      });
+    },
+
     notify(title, message, id) {
       if (this.notifyTimer[id] && Date.now() - this.notifyTimer[id] < 5000)
         return;
@@ -355,32 +470,30 @@ export default {
     },
     onMove() {
       this.isMoving = true;
-        this.notify(
-          "Перемещение задачи",
-          "Зелеными маркерами подсвечены возможные места перемещения",
-          "tm"
-        );
+      this.notify(
+        "Перемещение задачи",
+        "Зелеными маркерами подсвечены возможные места перемещения",
+        "tm"
+      );
     },
-    storageClear(){
-      window.localStorage.removeItem('dt')
-      window.location.reload()
-
+    storageClear() {
+      window.localStorage.removeItem("dt");
+      window.location.reload();
     },
     storageSave() {
       window.localStorage.setItem("dt", JSON.stringify(this.members));
     },
     storageLoad() {
-      const SELF = this
+      const SELF = this;
       let raw = window.localStorage.getItem("dt");
       if (raw) {
         this.members = JSON.parse(raw);
-      }else{
+      } else {
         setTimeout(() => {
-          SELF.notify("нет данных", "загружены демонстрационные данные", "dt")
-          SELF.storageSave()
-          SELF.storageLoad()
+          SELF.notify("нет данных", "загружены демонстрационные данные", "dt");
+          SELF.storageSave();
+          SELF.storageLoad();
         }, 500);
-        
       }
       //console.log(raw)
     },
@@ -395,8 +508,8 @@ export default {
         for (var key = 0; key < 11; key++) {
           if (ret[key.toString()]) {
             summ = summ + ret[key.toString()];
-            if(this.cTask.fireDay == key){
-              activeSumm = summ
+            if (this.cTask.fireDay == key) {
+              activeSumm = summ;
             }
           }
           context.lineTo(key * this.kW, summ * this.kH);
@@ -410,20 +523,30 @@ export default {
           context.moveTo(i * 50, 1);
           context.lineTo(i * 50, 500);
           context.fillStyle = "rgba(0,0,0,0.9)";
-          context.fillText(i+1, (i+1)*50 - 12, 10);
+          context.fillText(i + 1, (i + 1) * 50 - 12, 10);
         }
-        let k = 500/this.tasksCount
+        let k = 500 / this.tasksCount;
         for (let i = 0; i < this.tasksCount; i++) {
           context.moveTo(1, i * this.kH);
           context.lineTo(500, i * this.kH);
-          context.fillText(i+1 , 5 , (i + 1)*k );
+          context.fillText(i + 1, 5, (i + 1) * k);
         }
         context.strokeStyle = "rgba(0, 0, 0, 0.1)";
         context.stroke();
 
         context.fillStyle = "rgba(0,255,0,0.1)";
-        context.fillRect(this.cTask.startDay * 50, 1, this.cTask.time * 50, 500)
-        context.fillRect(0, (activeSumm - ret[this.cTask.fireDay] + this.cTask.fs) * this.kH, 500, this.cTask.time * this.kH)
+        context.fillRect(
+          this.cTask.startDay * 50,
+          1,
+          this.cTask.time * 50,
+          500
+        );
+        context.fillRect(
+          0,
+          (activeSumm - ret[this.cTask.fireDay] + this.cTask.fs) * this.kH,
+          500,
+          this.cTask.time * this.kH
+        );
       }
     },
     onSave() {
@@ -472,11 +595,11 @@ export default {
         time: 1,
         isActive: false,
         typeId: 2,
-        jira: null
+        jira: null,
       };
       self.cMember.tasks.push(task);
-      if(self.checkMemberOverload(self.cMember)){
-        self.repareTime(self.cMember)
+      if (self.checkMemberOverload(self.cMember)) {
+        self.repareTime(self.cMember);
       }
     },
     clearMembersIsActive() {
@@ -490,11 +613,11 @@ export default {
         this.changeTasks(this.cTask, task);
       } else {
         this.cTask = task;
-        this.notify(
-          "Выбор задачи",
-          "Выбранную задачу можно отредактировать, обменять с другой задачей или переместить",
-          "ta"
-        );
+        // this.notify(
+        //   "Выбор задачи",
+        //   "Выбранную задачу можно отредактировать, обменять с другой задачей или переместить",
+        //   "ta"
+        // );
       }
       this.members.forEach((member) => {
         member.tasks.forEach((tsk) => {
@@ -503,9 +626,9 @@ export default {
       });
       task.isActive = true;
       this.isMoving = false;
-      this.setTaskDays()
-      let show = this.fire
-      show
+      this.setTaskDays();
+      let show = this.fire;
+      show;
     },
   },
 };
